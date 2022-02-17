@@ -1,6 +1,108 @@
 syntax = "proto2";
 package Protobuf;
 
+/* 通信 messages 定义 */
+
+message PubAckMessage {
+    optional string messageId = 1;
+    required string messageUId = 2;
+    required int64 timestamp = 3;
+}
+
+message PublishMessage {
+    optional string messageId = 1;
+    required string messageUId = 2;
+    optional int32 status = 4;
+}
+
+message ConnAckMessage {
+    required int32 status = 1;
+    required string userId = 2;
+    required string sessionId = 3;
+    required int64 timestamp = 4;
+}
+
+message QueryMessage {
+    required string messageId = 1;
+    required int32 topic = 2;
+    required int32 count = 3;
+    required string targetId = 4;
+
+    optional int64 timestamp = 5;
+    optional string messageUId = 6;
+    optional int32 order = 7;
+
+    optional int64 sendTimestamp= 8;
+    optional int64 syncTimestamp= 9;
+}
+
+message MessageItem {
+    required int32 type = 1;
+    required string classname = 2;
+    required string topic = 3;
+    required string targetId = 4;
+    required int32 status = 5;
+    required string extra = 6;
+    required bytes content = 7;
+    required int64 timestamp = 8;
+    required string fromUserId = 9;
+    required int32 direction = 10;
+    optional string messageUId = 11;
+    optional string groupId = 12;
+}
+
+message ConversationItem {
+    required int32 type = 1;
+    required string targetId = 2;
+    optional bool isTop = 3;
+    required MessageItem message = 4;
+}
+
+message QueryAckMessage {
+    extensions 4 to 100;
+    required int32 lengthSize = 1;
+    required string messageId = 2;
+    required int32 status = 3;
+}
+
+// decoder code - 0
+message QueryMsgAckMessage {
+    extend QueryAckMessage {
+        repeated MessageItem list = 4;
+    }
+}
+
+// decoder code - 1
+message QueryConvAckMessage {
+    extend QueryAckMessage {
+        repeated ConversationItem list = 5;
+    }
+}
+
+message QueryConMessage {
+    required string messageId = 1;
+}
+
+message DisconnenctMessage {
+    required int32 status = 1;
+}
+
+message HistoryMessageInput
+{
+    required string targetId = 1;
+    required int64 timestamp = 2;
+    required int32 len = 3;
+}
+
+message HistoryMessagesOuput
+{
+    repeated DownStreamMessage list = 1;
+    required int64 syncTime = 2;
+    required int32 hasMsg = 3;
+}
+
+/* 其它参考 */
+
 message NotifyMsg {
     required int32 type = 1;
     optional int64 time = 2;
@@ -192,17 +294,4 @@ message RelationInfo
     required ChannelType type = 1;
     required string userId = 2;
     optional DownStreamMessage msg =3;
-}
-message HistoryMessageInput
-{
-    required string targetId = 1;
-    required int64 dataTime =2;
-    required int32 size  = 3;
-}
-
-message HistoryMessagesOuput
-{
-    repeated DownStreamMessage list = 1;
-    required int64 syncTime = 2;
-    required int32 hasMsg = 3;
 }
